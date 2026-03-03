@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Australian Network Outage Reporter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <main>
+      <h1>Australian 4G + NBN Outage Reporter</h1>
+      <p class="auth-banner">
+        Authenticated as:
+        <strong>{{ authenticated_user or 'Anonymous (auth disabled)' }}</strong>
+      </p>
+      <form method="GET" action="/">
+        <label for="sites">Filter by site codes (comma separated):</label>
+        <input
+          id="sites"
+          name="sites"
+          value="{{ site_codes }}"
+          placeholder="MEL-001,SYD-102"
+        />
+        <button type="submit">Apply filter</button>
+      </form>
+
+      <form method="POST" action="/api/poll">
+        <button type="submit">Poll providers now</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Provider</th>
+            <th>Network</th>
+            <th>Site</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for outage in outages %}
+          <tr>
+            <td>{{ outage.provider }}</td>
+            <td>{{ outage.network_type }}</td>
+            <td>{{ outage.site_code }}</td>
+            <td class="status {{ outage.status|lower }}">{{ outage.status }}</td>
+            <td>{{ outage.description }}</td>
+            <td>{{ outage.updated_at or outage.last_polled_at }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6">No outages found yet. Click "Poll providers now".</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>
